@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" version="3.7" group="content" method="upgrade">
+    <name>PLG_CONTENT_QLWIKI</name>
+    <author>Ingo Holewczuk; Mareike Riegel</author>
+    <creationDate>2020</creationDate>
+    <copyright>Copyright (C) 2020 ql.de All rights reserved.</copyright>
+    <authorEmail>mareike.riegel@ql.de</authorEmail>
+    <authorUrl>http://ql.de/</authorUrl>
+    <version>1.9.0</version>
+    <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+    <description>PLG_CONTENT_QLWIKI_DESCRIPTION</description>
+    <updateservers>
+        <server type="extension" priority="1" name="qlwiki - Updates"><![CDATA[https://www.blackforest-software.com/_scripts/updates/plg_content_qlwiki-PRO.xml]]></server>
+    </updateservers>
+    <files>
+        <filename plugin="qlwiki">qlwiki.php</filename>
+        <filename plugin="qlwiki">index.html</filename>
+        <folder plugin="qlwiki">language</folder>
+    </files>
+    <languages>
+        <language tag="en-GB">language/en-GB/en-GB.plg_content_qlwiki.ini</language>
+        <language tag="en-GB">language/en-GB/en-GB.plg_content_qlwiki.sys.ini</language>
+        <language tag="de-DE">language/de-DE/de-DE.plg_content_qlwiki.ini</language>
+        <language tag="de-DE">language/de-DE/de-DE.plg_content_qlwiki.sys.ini</language>
+    </languages>
+	<config>
+		<fields name="params">
+            <fieldset name="basic">
+                <field
+                    name="url"
+                    type="text"
+                    required="true"
+                    label="PLG_CONTENT_QLWIKI_URL_LABEL"
+                    description="PLG_CONTENT_QLWIKI_URL_DESC"
+                    filter="url"
+                    />
+                <field
+                    name="action"
+                    type="text"
+                    required="true"
+                    label="PLG_CONTENT_QLWIKI_ACTION_LABEL"
+                    description="PLG_CONTENT_QLWIKI_ACTION_DESC"
+                    default="view"
+                    />
+                <field
+                    name="user_agent"
+                    type="text"
+                    default="qlbot"
+                    label="PLG_CONTENT_QLWIKI_USERAGENT_LABEL"
+                    description="PLG_CONTENT_QLWIKI_USERAGENT_DESC"
+                    />
+                <field
+                    name="serversettings"
+                    type="list"
+                    required="true"
+                    label="PLG_CONTENT_QLWIKI_SERVERSETTINGS_LABEL"
+                    description="PLG_CONTENT_QLWIKI_SERVERSETTINGS_DESC"
+                    default="0"
+                    >
+                    <option value="default">PLG_CONTENT_QLWIKI_SERVERSETTINGS_DEFAULT</option>
+                    <option value="curl">PLG_CONTENT_QLWIKI_SERVERSETTINGS_CURL</option>
+                    <!--option value="3rd_way">PLG_CONTENT_QLWIKI_SERVERSETTINGS_3</option>
+                    <option value="4th_way">PLG_CONTENT_QLWIKI_SERVERSETTINGS_4</option>
+                    <option value="5th_way">PLG_CONTENT_QLWIKI_SERVERSETTINGS_5</option-->
+            </field>
+            </fieldset>
+            <fieldset name="login">
+                <field
+                    name="login"
+                    type="radio"
+                    required="true"
+                    class="btn-group"
+                    label="PLG_CONTENT_QLWIKI_LOGIN_LABEL"
+                    description="PLG_CONTENT_QLWIKI_LOGIN_DESC"
+                    default="0"
+                    >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+                <field
+                        name="user"
+                        type="text"
+                        label="PLG_CONTENT_QLWIKI_USER_LABEL"
+                        description="PLG_CONTENT_QLWIKI_USER_DESC"
+                        />
+                <field
+                        name="password"
+                        type="text"
+                        label="PLG_CONTENT_QLWIKI_PASSWORD_LABEL"
+                        description="PLG_CONTENT_QLWIKI_PASSWORD_DESC"
+                        />
+                <field
+                        name="edit"
+                        type="usergroup"
+                        label="PLG_CONTENT_QLWIKI_EDIT_LABEL"
+                        description="PLG_CONTENT_QLWIKI_EDIT_DESC"
+                        multiple="true"
+                        >
+                </field>
+                <!--field
+                        name="edit"
+                        type="list"
+                        label="PLG_CONTENT_QLWIKI_EDIT_LABEL"
+                        description="PLG_CONTENT_QLWIKI_EDIT_DESC"
+                        default="0"
+                        >
+                    <option value="0">PLG_CONTENT_QLWIKI_EDITNOPE</option>
+                    <option value="1">PLG_CONTENT_QLWIKI_EDITALWAYS</option>
+                    <option value="2">PLG_CONTENT_QLWIKI_EDITONLYSUPERADMIN</option>
+                </field-->
+            </fieldset>
+            <fieldset name="output">
+                <field type="text" name="readmoreText"
+                       label="PLG_CONTENT_QLWIKI_READMORETEXT_LABEL"
+                       description="PLG_CONTENT_QLWIKI_READMORETEXT_DESC"
+                       default="COM_CONTENT_READ_MORE_TITLE">
+                </field>
+                <field
+                    name="striplinks"
+                    type="radio"
+                    class="btn-group"
+                    label="PLG_CONTENT_QLWIKI_STRIPLINKS_LABEL"
+                    description="PLG_CONTENT_QLWIKI_STRIPLINKS_DESC"
+                    default="1"
+                    >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                    <option value="2">PLG_CONTENT_QLWIKI_ADDWIKIURL</option>
+                </field>
+            </fieldset>
+            <fieldset name="outputArticle">
+                <field
+                        name="articleTo"
+                        type="list"
+                        required="true"
+                        label="PLG_CONTENT_QLWIKI_TO_LABEL"
+                        description="PLG_CONTENT_QLWIKI_TO_DESC"
+                        default="0"
+                        >
+                    <option value="0">JALL</option>
+                    <option value="1">PLG_CONTENT_QLWIKI_TO_INTRO</option>
+                    <option value="2">PLG_CONTENT_QLWIKI_TO_INTRODIRECTORY</option>
+                    <option value="3">PLG_CONTENT_QLWIKI_TO_FIRSTIMAGE</option>
+                </field>
+                <field
+                        name="articleInfoTable"
+                        type="radio"
+                        class="btn-group"
+                        label="PLG_CONTENT_QLWIKI_INFOTABLE_LABEL"
+                        description="PLG_CONTENT_QLWIKI_INFOTABLE_DESC"
+                        default="1"
+                        >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+                <field
+                        name="articleStripTags"
+                        type="radio"
+                        class="btn-group"
+                        label="PLG_CONTENT_QLWIKI_STRIPTAGS_LABEL"
+                        description="PLG_CONTENT_QLWIKI_STRIPTAGS_DESC"
+                        default="0"
+                        >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+                <field
+                        name="articleCut"
+                        type="text"
+                        label="PLG_CONTENT_QLWIKI_CUT_LABEL"
+                        description="PLG_CONTENT_QLWIKI_CUT_DESC"
+                        default="0"
+                        filter="integer"
+                        >
+                </field>
+                <field
+                        name="articleHideImages"
+                        type="radio"
+                        required="true"
+                        class="btn-group"
+                        label="PLG_CONTENT_QLWIKI_HIDEIMAGES_LABEL"
+                        description="PLG_CONTENT_QLWIKI_HIDEIMAGES_DESC"
+                        default="0"
+                        >
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field
+                        name="articleReadAll"
+                        type="radio"
+                        class="btn-group"
+                        label="PLG_CONTENT_QLWIKI_READALL_LABEL"
+                        description="PLG_CONTENT_QLWIKI_READALL_DESC"
+                        default="0"
+                        >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+            </fieldset>
+            <fieldset name="outputCategory">
+                <field
+                        name="categoryTo"
+                        type="list"
+                        required="true"
+                        label="PLG_CONTENT_QLWIKI_TO_LABEL"
+                        description="PLG_CONTENT_QLWIKI_TO_DESC"
+                        default="0"
+                        >
+                    <option value="0">JALL</option>
+                    <option value="1">PLG_CONTENT_QLWIKI_TO_INTRO</option>
+                    <option value="2">PLG_CONTENT_QLWIKI_TO_INTRODIRECTORY</option>
+                    <option value="3">PLG_CONTENT_QLWIKI_TO_FIRSTIMAGE</option>
+                </field>
+                <field
+                        name="categoryInfoTable"
+                        type="radio"
+                        class="btn-group"
+                        label="PLG_CONTENT_QLWIKI_INFOTABLE_LABEL"
+                        description="PLG_CONTENT_QLWIKI_INFOTABLE_DESC"
+                        default="1"
+                        >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+                <field
+                        name="categoryStripTags"
+                        type="radio"
+                        class="btn-group"
+                        label="PLG_CONTENT_QLWIKI_STRIPTAGS_LABEL"
+                        description="PLG_CONTENT_QLWIKI_STRIPTAGS_DESC"
+                        default="0"
+                        >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+                <field
+                        name="categoryCut"
+                        type="text"
+                        label="PLG_CONTENT_QLWIKI_CUT_LABEL"
+                        description="PLG_CONTENT_QLWIKI_CUT_DESC"
+                        default="0"
+                        filter="integer"
+                        >
+                </field>
+                <field
+                        name="categoryHideImages"
+                        type="radio"
+                        required="true"
+                        class="btn-group"
+                        label="PLG_CONTENT_QLWIKI_HIDEIMAGES_LABEL"
+                        description="PLG_CONTENT_QLWIKI_HIDEIMAGES_DESC"
+                        default="0"
+                        >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+                <field
+                        name="categoryReadAll"
+                        type="radio"
+                        class="btn-group"
+                        label="PLG_CONTENT_QLWIKI_READALL_LABEL"
+                        description="PLG_CONTENT_QLWIKI_READALL_DESC"
+                        default="0"
+                        >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+            </fieldset>
+            <fieldset name="outputFeatured">
+                <field
+                        name="featuredTo"
+                        type="list"
+                        required="true"
+                        label="PLG_CONTENT_QLWIKI_TO_LABEL"
+                        description="PLG_CONTENT_QLWIKI_LOGIN_DESC"
+                        default="0"
+                        >
+                    <option value="0">JALL</option>
+                    <option value="1">PLG_CONTENT_QLWIKI_TO_INTRO</option>
+                    <option value="2">PLG_CONTENT_QLWIKI_TO_INTRODIRECTORY</option>
+                    <option value="3">PLG_CONTENT_QLWIKI_TO_FIRSTIMAGE</option>
+                </field>
+                <field
+                        name="featuredInfoTable"
+                        type="radio"
+                        class="btn-group"
+                        label="PLG_CONTENT_QLWIKI_INFOTABLE_LABEL"
+                        description="PLG_CONTENT_QLWIKI_INFOTABLE_DESC"
+                        default="1"
+                        >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+                <field
+                        name="featuredStripTags"
+                        type="radio"
+                        class="btn-group"
+                        label="PLG_CONTENT_QLWIKI_STRIPTAGS_LABEL"
+                        description="PLG_CONTENT_QLWIKI_STRIPTAGS_DESC"
+                        default="0"
+                        >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+                <field
+                        name="featuredCut"
+                        type="text"
+                        label="PLG_CONTENT_QLWIKI_CUT_LABEL"
+                        description="PLG_CONTENT_QLWIKI_CUT_DESC"
+                        default="0"
+                        filter="integer"
+                        >
+                </field>
+                <field
+                        name="featuredHideImages"
+                        type="radio"
+                        required="true"
+                        class="btn-group"
+                        label="PLG_CONTENT_QLWIKI_HIDEIMAGES_LABEL"
+                        description="PLG_CONTENT_QLWIKI_HIDEIMAGES_DESC"
+                        default="0"
+                        >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+                <field
+                        name="featuredReadAll"
+                        type="radio"
+                        class="btn-group"
+                        label="PLG_CONTENT_QLWIKI_READALL_LABEL"
+                        description="PLG_CONTENT_QLWIKI_READALL_DESC"
+                        default="0"
+                        >
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+            </fieldset>
+		</fields>
+	</config>
+</extension>
