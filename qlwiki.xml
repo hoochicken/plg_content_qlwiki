@@ -10,7 +10,7 @@
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
     <description>PLG_CONTENT_QLWIKI_DESCRIPTION</description>
     <updateservers>
-        <server type="extension" priority="1" name="qlwiki - Updates">https://raw.githubusercontent.com/hoochicken/plg_content_qlwiki/main/_jupdate/plg_content_qlwiki.xml</server>
+        <server type="extension" priority="1" name="qlwiki - Updates">https://raw.githubusercontent.com/hoochicken/plg_content_qlwiki/master/_jupdate/plg_content_qlwiki.xml</server>
     </updateservers>
     <files>
         <filename plugin="qlwiki">qlwiki.php</filename>
