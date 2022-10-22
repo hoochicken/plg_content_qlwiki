@@ -1,7 +1,7 @@
 <?php
 /**
  * @package        plg_content_qlwiki
- * @copyright    Copyright (C) 2020 ql.de All rights reserved.
+ * @copyright    Copyright (C) 2022 ql.de All rights reserved.
  * @author        Ingo Holewczuk info@ql.de; Mareike Riegel mareike.riegel@ql.de
  * @license        GNU General Public License version 2 or later; see LICENSE.txt
  */
@@ -133,7 +133,7 @@ class plgContentQlwiki extends JPlugin
             }
 
             // get url and work with it properly
-            $url = $this->workItUrl($this->states['url']);
+            $url = $this->buildUrl($this->states['url']);
 
             // get data from wiki, probably via curl
             $this->strOutput = $this->getWikiData($url);
@@ -248,7 +248,7 @@ class plgContentQlwiki extends JPlugin
             $context = stream_context_create(array('http' => array('header' => "Authorization: Basic " . base64_encode($this->states['user'] . ':' . $this->states['password']))));
             $output = @file_get_contents($url, false, $context);
         } else $output = @file_get_contents($url, false);
-        if (false == $output) JFactory::getApplication()->enqueueMessage($this->get('_name') . ': ' . sprintf(JText::_('PLG_CONTENT_QLWIKI_ERROROCCURRED'), $this->states['title']));
+        if (!$output) JFactory::getApplication()->enqueueMessage($this->get('_name') . ': ' . sprintf(JText::_('PLG_CONTENT_QLWIKI_ERROROCCURRED'), $this->states['title']));
         return $output;
     }
 
@@ -318,7 +318,7 @@ class plgContentQlwiki extends JPlugin
      */
     private function outputEdit()
     {
-        if (true == $this->checkIfAllowed()) return;
+        if ($this->checkIfAllowed()) return;
         $this->strOutput = preg_replace('#<span class="editsection">(.*)</span>#Uis', '\\2', $this->strOutput);
         $this->strOutput = preg_replace('#<span class="mw-editsection">(.*)</span>#Uis', '\\2', $this->strOutput);
         $this->strOutput = str_replace('">edit</a>', '"></a>', $this->strOutput);
@@ -531,10 +531,9 @@ class plgContentQlwiki extends JPlugin
      * @param $url
      * @return string|string[]|null
      */
-    private function workItUrl($url)
+    private function buildUrl($url)
     {
         // encode as html entity, ? is done underneath, really needed here? doing it twice might cause problem, hein?
-        // $url = html_entity_decode($url);
         $this->states['url'] = $url;
         if (empty($this->states['query'])) {
             $url .= '?' . $this->states['query'];
@@ -554,6 +553,10 @@ class plgContentQlwiki extends JPlugin
             $url .= '&action=' . $this->states['action'];
         }
 
+        // add protocol
+        if (false === strpos($url, 'http')) {
+            $url = $this->params->get('url') . $url;
+        }
         // add protocol
         if (false === strpos($url, 'http')) {
             $url = 'https://' . $url;
