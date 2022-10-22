@@ -2,15 +2,15 @@
 <extension type="plugin" version="3.7" group="content" method="upgrade">
     <name>PLG_CONTENT_QLWIKI</name>
     <author>Ingo Holewczuk; Mareike Riegel</author>
-    <creationDate>2020</creationDate>
-    <copyright>Copyright (C) 2020 ql.de All rights reserved.</copyright>
+    <creationDate>2022</creationDate>
+    <copyright>Copyright (C) 2022 ql.de All rights reserved.</copyright>
     <authorEmail>mareike.riegel@ql.de</authorEmail>
     <authorUrl>http://ql.de/</authorUrl>
-    <version>1.9.0</version>
+    <version>1.10.0</version>
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
     <description>PLG_CONTENT_QLWIKI_DESCRIPTION</description>
     <updateservers>
-        <server type="extension" priority="1" name="qlwiki - Updates"><![CDATA[https://www.blackforest-software.com/_scripts/updates/plg_content_qlwiki-PRO.xml]]></server>
+        <server type="extension" priority="1" name="qlwiki - Updates">https://raw.githubusercontent.com/hoochicken/plg_content_qlwiki/main/_jupdate/plg_content_qlwiki.xml></server>
     </updateservers>
     <files>
         <filename plugin="qlwiki">qlwiki.php</filename>
@@ -91,23 +91,12 @@
                         />
                 <field
                         name="edit"
-                        type="usergroup"
+                        type="usergrouplist"
                         label="PLG_CONTENT_QLWIKI_EDIT_LABEL"
                         description="PLG_CONTENT_QLWIKI_EDIT_DESC"
                         multiple="true"
                         >
                 </field>
-                <!--field
-                        name="edit"
-                        type="list"
-                        label="PLG_CONTENT_QLWIKI_EDIT_LABEL"
-                        description="PLG_CONTENT_QLWIKI_EDIT_DESC"
-                        default="0"
-                        >
-                    <option value="0">PLG_CONTENT_QLWIKI_EDITNOPE</option>
-                    <option value="1">PLG_CONTENT_QLWIKI_EDITALWAYS</option>
-                    <option value="2">PLG_CONTENT_QLWIKI_EDITONLYSUPERADMIN</option>
-                </field-->
             </fieldset>
             <fieldset name="output">
                 <field type="text" name="readmoreText"
