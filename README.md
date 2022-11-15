@@ -2,7 +2,13 @@
 
 plg_content_qlwiki is a so-called content plugin for the CMS Joomla!. 
 
+## What about a coffee ..
+
+I love coding. My extensions are for free. Wanna say thanks? You're welcome! 
+<https://www.buymeacoffee.com/mareikeRiegel>
+
 ## Usage 
+
 Add tag {qlwiki'} into article text. Via url parameter you can connect to a wiki; e. g.: {qlwiki url=http://de.wikipedia.org/wiki/Joomla}.
 
 If you use a local, private wiki; enter the url in {qlwiki'} tag or simply use the default settings of plugin in backend. (Of course without '; if I used ' here, iut wouldn't display the tags but the wiki entry;-)
