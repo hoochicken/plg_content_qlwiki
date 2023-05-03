@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="plugin" version="3.7" group="content" method="upgrade">
     <name>PLG_CONTENT_QLWIKI</name>
-    <author>Ingo Holewczuk; Mareike Riegel</author>
-    <creationDate>2022</creationDate>
-    <copyright>Copyright (C) 2022 ql.de All rights reserved.</copyright>
+    <author>Mareike Riegel</author>
+    <creationDate>2023</creationDate>
+    <copyright>Copyright (C) 2023 ql.de All rights reserved.</copyright>
     <authorEmail>mareike.riegel@ql.de</authorEmail>
     <authorUrl>http://ql.de/</authorUrl>
     <version>1.10.2</version>
