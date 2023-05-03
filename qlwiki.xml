@@ -102,7 +102,7 @@
                 <field type="text" name="readmoreText"
                        label="PLG_CONTENT_QLWIKI_READMORETEXT_LABEL"
                        description="PLG_CONTENT_QLWIKI_READMORETEXT_DESC"
-                       default="COM_CONTENT_READ_MORE_TITLE">
+                       default="JGLOBAL_READ_MORE">
                 </field>
                 <field
                     name="striplinks"
@@ -171,8 +171,8 @@
                         description="PLG_CONTENT_QLWIKI_HIDEIMAGES_DESC"
                         default="0"
                         >
-                    <option value="0">JNO</option>
                     <option value="1">JYES</option>
+                    <option value="0">JNO</option>
                 </field>
                 <field
                         name="articleReadAll"

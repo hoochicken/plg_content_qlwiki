@@ -14,6 +14,10 @@ jimport('joomla.plugin.plugin');
 class plgContentQlwiki extends JPlugin
 {
 
+    const TEMPLATE_CONTENT = '<div class="qlwiki">%s</div>';
+    const TEMPLATE_BUTTON = '<a class="btn" href="%s" target="_blank">%s</a>';
+    const READ_MORE = 'read more';
+
     /** @var string start tag in curled brackets, like {qlwiki url="http://de.wikipedia.org/wiki/Joomla"} */
     protected $str_call_start = 'qlwiki';
 
@@ -68,7 +72,7 @@ class plgContentQlwiki extends JPlugin
      * @return bool
      * @throws Exception
      */
-    public function onContentPrepare($context, &$article, &$params, $page = 0)
+    public function onContentPrepare(string $context, &$article, &$params, $page = 0)
     {
         // leave if search plugin is working
         if ('com_finder.indexer' === $context) {
@@ -94,7 +98,7 @@ class plgContentQlwiki extends JPlugin
     /**
      * method to set states
      */
-    private function setDefaultStates()
+    private function setDefaultStates(): void
     {
         foreach ($this->arr_attributes as $strParamName) {
             $this->states[$strParamName] = $this->params->get($strParamName, 0);
@@ -107,7 +111,7 @@ class plgContentQlwiki extends JPlugin
      * @return mixed
      * @throws Exception
      */
-    private function replaceStartTags($text)
+    private function replaceStartTags(string $text): string
     {
         // get matches of tag
         $matches = $this->getMatches($text, $this->str_call_start);
@@ -148,10 +152,7 @@ class plgContentQlwiki extends JPlugin
         return $text;
     }
 
-    /**
-     * @param $strUrl
-     */
-    private function workItOutput($strUrl)
+    private function workItOutput(string $strUrl): void
     {
         $strResult = $this->strOutput;
 
@@ -202,9 +203,10 @@ class plgContentQlwiki extends JPlugin
             $strResult = preg_replace('`href="(?!http)`i', 'target="_blank" href="' . $wiki, $strResult);
         }
 
-        $this->strOutput = $strResult;
-        $this->outputEdit();
-        $this->outputCut();
+        $output = $strResult;
+        $output = $this->outputEdit($output);
+        $output = $this->outputCut($output);
+        $this->strOutput = $output;
     }
 
     /**
@@ -213,7 +215,7 @@ class plgContentQlwiki extends JPlugin
      * @return bool|false|string
      * @throws Exception
      */
-    private function getWikiData($url)
+    private function getWikiData(string $url): string
     {
         switch ($this->states['serversettings']) {
             case 'curl' :
@@ -241,14 +243,20 @@ class plgContentQlwiki extends JPlugin
      * @return false|string
      * @throws Exception
      */
-    private function getWikiDataViaDefault($url)
+    private function getWikiDataViaDefault(string $url): string
     {
-        if (isset($this->states['user_agent'])) ini_set('user_agent', $this->states['user_agent']);
+        if (isset($this->states['user_agent'])) {
+            ini_set('user_agent', $this->states['user_agent']);
+        }
         if (isset($this->states['login']) && 1 == $this->states['login']) {
             $context = stream_context_create(array('http' => array('header' => "Authorization: Basic " . base64_encode($this->states['user'] . ':' . $this->states['password']))));
             $output = @file_get_contents($url, false, $context);
-        } else $output = @file_get_contents($url, false);
-        if (!$output) JFactory::getApplication()->enqueueMessage($this->get('_name') . ': ' . sprintf(JText::_('PLG_CONTENT_QLWIKI_ERROROCCURRED'), $this->states['title']));
+        } else {
+            $output = @file_get_contents($url, false);
+        }
+        if (!$output) {
+            JFactory::getApplication()->enqueueMessage($this->get('_name') . ': ' . sprintf(JText::_('PLG_CONTENT_QLWIKI_ERROROCCURRED'), $this->states['title']));
+        }
         return $output;
     }
 
@@ -258,7 +266,7 @@ class plgContentQlwiki extends JPlugin
      * @return bool|string
      * @throws Exception
      */
-    private function getWikiDataViaCurl($url)
+    private function getWikiDataViaCurl($url): ?string
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -285,7 +293,7 @@ class plgContentQlwiki extends JPlugin
      * @param $url
      * @return string
      */
-    private function getWikiDataVia3($url)
+    private function getWikiDataVia3($url): string
     {
         $output = '';
         return $output;
@@ -296,7 +304,7 @@ class plgContentQlwiki extends JPlugin
      * @param $url
      * @return string
      */
-    private function getWikiDataVia4($url)
+    private function getWikiDataVia4($url): string
     {
         $output = '';
         return $output;
@@ -307,7 +315,7 @@ class plgContentQlwiki extends JPlugin
      * @param $url
      * @return string
      */
-    private function getWikiDataVia5($url)
+    private function getWikiDataVia5($url): string
     {
         $output = '';
         return $output;
@@ -316,35 +324,50 @@ class plgContentQlwiki extends JPlugin
     /**
      * check if user is logged in
      */
-    private function outputEdit()
+    private function outputEdit(string $output): string
     {
-        if ($this->checkIfAllowed()) return;
-        $this->strOutput = preg_replace('#<span class="editsection">(.*)</span>#Uis', '\\2', $this->strOutput);
-        $this->strOutput = preg_replace('#<span class="mw-editsection">(.*)</span>#Uis', '\\2', $this->strOutput);
-        $this->strOutput = str_replace('">edit</a>', '"></a>', $this->strOutput);
-        $this->strOutput = str_replace('<span class="mw-editsection-bracket">]</span>', '', $this->strOutput);
+        if ($this->checkIfAllowed()) {
+            return $output;
+        }
+        $output = preg_replace('#<span class="editsection">(.*)</span>#Uis', '\\2', $output);
+        $output = preg_replace('#<span class="mw-editsection">(.*)</span>#Uis', '\\2', $output);
+        $output = str_replace('">edit</a>', '"></a>', $output);
+        $output = str_replace('<span class="mw-editsection-bracket">]</span>', '', $output);
+        return $output;
     }
 
     /**
      * @return bool
      */
-    private function checkIfAllowed()
+    private function checkIfAllowed():bool
     {
-        if (!isset($this->states['edit']) OR !is_array($this->states['edit'])) return false;
+        if (!isset($this->states['edit']) || !is_array($this->states['edit'])) {
+            return false;
+        }
         $user = JFactory::getUser();
         $userGroup = $user->get('groups');
-        if (!is_array($userGroup)) return false;
+        if (!is_array($userGroup)) {
+            return false;
+        }
         $checkArray = array_intersect($userGroup, $this->states['edit']);
-        if (0 < count($checkArray)) return true;
+        if (0 < count($checkArray)) {
+            return true;
+        }
         return false;
     }
 
     /**
      * check if user is logged in
      */
-    private function outputCut()
+    private function outputCut(string $output): string
     {
-        switch ($this->states[$this->viewType . 'To']) {
+        $to = (int)$this->states[$this->viewType . 'To'];
+        $infoTable = (bool)$this->states[$this->viewType . 'InfoTable'];
+        $striptags = (bool)$this->states[$this->viewType . 'StripTags'];
+        $cut = (int)$this->states[$this->viewType . 'Cut'] ?? 0;
+        $readAll = (bool)$this->states[$this->viewType . 'ReadAll'];
+
+        switch ($to) {
             case 0:
                 ;
                 break;
@@ -363,35 +386,39 @@ class plgContentQlwiki extends JPlugin
                 $this->strOutput = substr($this->strOutput, 0, $pos + 1);
                 break;
         }
-        //die($this->viewType.'InfoTable:'.$this->states[$this->viewType.'InfoTable']);
-        if (0 == $this->states[$this->viewType . 'InfoTable']) {
-            $this->strOutput = $this->stripInfotable($this->strOutput);
+        if (!$infoTable) {
+            $output = $this->stripInfotable($output);
         }
-        if (1 == $this->states[$this->viewType . 'StripTags']) {
-            $this->strOutput = strip_tags($this->strOutput);
+        if ($striptags) {
+            $output = strip_tags($output);
         }
-        if (isset($this->states[$this->viewType . 'Cut']) && is_numeric($this->states[$this->viewType . 'Cut']) && $this->states[$this->viewType . 'Cut'] > 0) {
-            $this->strOutput = substr($this->strOutput, 0, $this->states[$this->viewType . 'Cut']);
+        if (0 < $cut) {
+            $output = substr($output, 0, $cut);
         }
 
-        if (1 == $this->states[$this->viewType . 'ReadAll'] && false == $this->error) $this->strOutput .= $this->getReadAll();
-        $this->strOutput = '<div class="qlwiki">' . $this->strOutput . '</div>';
+        if ($readAll && false === $this->error) {
+            $output .= $this->getReadAll();
+        }
+        return sprintf(self::TEMPLATE_CONTENT, $output);
     }
 
     /**
      * check if user is logged in
      */
-    private function checkUserLoggedIn()
+    private function checkUserLoggedIn(): bool
     {
         $user = JFactory::getUser();
-        if ($user->id > 0) return true;
-        else return false;
+        if ($user->id > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
      * check if user is logged in
      */
-    private function checkUserAdministrator()
+    private function checkUserAdministrator():bool
     {
         $user = JFactory::getUser();
         if (in_array(8, $user->groups)) {
@@ -403,14 +430,15 @@ class plgContentQlwiki extends JPlugin
     /**
      * method to get attributes
      */
-    private function replaceEndTags($text)
+    private function replaceEndTags(string $text): ?array
     {
         $matches = $this->getMatches($text, $this->str_call_end);
-        if (count($matches) > 0) {
-            foreach ($matches as $match) {
-                $output = '';
-                $text = preg_replace("|$match[0]|", addcslashes($output, '\\$'), $text, 1);
-            }
+        if (0 === count($matches)) {
+            return $text;
+        }
+        foreach ($matches as $match) {
+            $output = '';
+            $text = preg_replace("|$match[0]|", addcslashes($output, '\\$'), $text, 1);
         }
         return $text;
     }
@@ -418,7 +446,7 @@ class plgContentQlwiki extends JPlugin
     /**
      * method to get attributes
      */
-    private function getAttributes($string)
+    private function getAttributes(string $string): array
     {
         $selector = implode('|', $this->arr_attributes);
         preg_match_all('~(' . $selector . ')="(.+?)"~s', $string, $matches);
@@ -441,7 +469,7 @@ class plgContentQlwiki extends JPlugin
      * method to get attributes
      * @param $arrAttributes
      */
-    private function writeAttributesToStates($arrAttributes)
+    private function writeAttributesToStates(array $arrAttributes): void
     {
         if (!is_array($arrAttributes) || 0 === count($arrAttributes)) {
             return;
@@ -457,13 +485,13 @@ class plgContentQlwiki extends JPlugin
     /**
      * method to get Url Request
      */
-    private function getUrlRequests()
+    private function getUrlRequests(): string
     {
         $arrRequests = [];
         if ('' != $this->states['title']) {
             $arrRequests[] = 'title=' . $this->states['title'];
         }
-        //if(''!=$this->states['action']) $arrRequests[]='action='.$this->states['action'];
+        // if(''!=$this->states['action']) $arrRequests[]='action='.$this->states['action'];
         return implode('&', $arrRequests);
     }
 
@@ -472,7 +500,7 @@ class plgContentQlwiki extends JPlugin
      * @param $str
      * @return mixed|string|string[]|null
      */
-    private function clearTags($str)
+    private function clearTags(string $str): ?string
     {
         // strip <p> tag in front of qlwiki tag
         $str = str_replace('<p>{' . $this->str_call_start, '{' . $this->str_call_start, $str);
@@ -491,7 +519,7 @@ class plgContentQlwiki extends JPlugin
      * @param $searchString string needle, string to be searched
      * @return mixed
      */
-    public function getMatches($text, $searchString)
+    public function getMatches(string $text, string $searchString): array
     {
         $searchString = preg_replace('!{\?}!', ' ', $searchString);
         $searchString = preg_replace('?/?', '\/', $searchString);
@@ -500,38 +528,33 @@ class plgContentQlwiki extends JPlugin
         return $matches;
     }
 
-    /**
-     * @param $string
-     * @return string|string[]|null
-     */
-    private function stripInfotable($string)
+    private function stripInfotable(string $string): string
     {
         // hatefull brute force, sometimes a solution
-        $string = preg_replace('~<table(.)*</table>~Us', '', $string);
-        return $string;
+        $stringReplaced = preg_replace('~<table(.)*</table>~Us', '', $string);
+        if (is_null($stringReplaced)) {
+            $stringReplaced = $string;
+        }
+        return $stringReplaced;
     }
 
-    /**
-     * @return string
-     */
-    private function getReadAll()
+    private function getReadAll(): string
     {
-        if ('' === trim($this->states['readmoreText'])) {
-            $this->states['readmoreText'] = 'COM_CONTENT_READ_MORE_TITLE';
-        }
+        $readMore = empty(trim($this->states['readmoreText']))
+            ? self::READ_MORE
+            : $this->states['readmoreText'];
+
         // get basic url without parameters
-        $url = substr($this->states['url'], 0, strpos($this->states['url'], '?'));
+        $url = $this->states['url'] ?? '';
+        if (is_numeric(strpos($url, '?'))) {
+            $url = substr($url, 0, strpos($url, '?'));
+        }
 
         // build html of button and return
-        $btn = '<a class="btn" href="' . $url . '" target="_blank">' . JText::_($this->states['readmoreText']) . '</a>';
-        return $btn;
+        return sprintf(self::TEMPLATE_BUTTON, $url, JText::_($readMore));
     }
 
-    /**
-     * @param $url
-     * @return string|string[]|null
-     */
-    private function buildUrl($url)
+    private function buildUrl(string $url): string
     {
         // encode as html entity, ? is done underneath, really needed here? doing it twice might cause problem, hein?
         $this->states['url'] = $url;
