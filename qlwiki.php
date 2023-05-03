@@ -45,9 +45,6 @@ class plgContentQlwiki extends JPlugin
     public $error = false;
 
     /** @var */
-    public $strOutput;
-
-    /** @var */
     public $viewType;
 
     /**
@@ -140,27 +137,29 @@ class plgContentQlwiki extends JPlugin
             $url = $this->buildUrl($this->states['url']);
 
             // get data from wiki, probably via curl
-            $this->strOutput = $this->getWikiData($url);
+            $output = $this->getWikiData($url);
 
             // alter wiki content
-            $this->workItOutput($url);
+            $output = $this->workItOutput($output, $url);
             if (1 == $this->states[$this->viewType . 'HideImages']) {
-                $this->strOutput = preg_replace('#<img\s+[^>]*src="([^"]*)"[^>]*>#', '', $this->strOutput);
+                $output = preg_replace('#<img\s+[^>]*src="([^"]*)"[^>]*>#', '', $output);
             }
-            $text = str_replace($match[0], $this->strOutput, $text);
+            $text = str_replace($match[0], $output, $text);
         }
         return $text;
     }
 
-    private function workItOutput(string $strUrl): void
+    private function workItOutput(string $output, string $strUrl): string
     {
-        $strResult = $this->strOutput;
+        $strResult = $output;
 
-        // stripü line breaks (?why)
-        $result = str_replace('\n', '', $this->strOutput);
+        // strip line breaks (?why)
+        $result = str_replace('\n', '', $output);
         if (is_string($result)) {
             $testResult = json_decode($result);
-            if (is_object($testResult)) $result = $testResult;
+            if (is_object($testResult)) {
+                $result = $testResult;
+            }
         }
 
         // if error occured, write error messsage into output
@@ -174,7 +173,7 @@ class plgContentQlwiki extends JPlugin
             $this->error = true;
         }
 
-        // if acrion is parse, do it
+        // if action is parse, do it
         if (0 < strpos($strUrl, 'action=parse')) {
             if (isset($result->parse) && isset($result->parse->text)){
                 $strResult = $result->parse->text;
@@ -206,7 +205,7 @@ class plgContentQlwiki extends JPlugin
         $output = $strResult;
         $output = $this->outputEdit($output);
         $output = $this->outputCut($output);
-        $this->strOutput = $output;
+        return $output;
     }
 
     /**
@@ -372,18 +371,18 @@ class plgContentQlwiki extends JPlugin
                 ;
                 break;
             case 1:
-                $pos = strpos($this->strOutput, '<div id="toc"');
-                $this->strOutput = substr($this->strOutput, 0, $pos);
+                $pos = strpos($output, '<div id="toc"');
+                $output = substr($output, 0, $pos);
                 break;
             case 2:
-                $pos = strpos($this->strOutput, '<h2><span');
-                $this->strOutput = substr($this->strOutput, 0, $pos);
+                $pos = strpos($output, '<h2><span');
+                $output = substr($output, 0, $pos);
                 break;
             case 3:
-                $pos = strpos($this->strOutput, '<img');
-                $this->strOutput = substr($this->strOutput, $pos);
-                $pos = strpos($this->strOutput, '>');
-                $this->strOutput = substr($this->strOutput, 0, $pos + 1);
+                $pos = strpos($output, '<img');
+                $output = substr($output, $pos);
+                $pos = strpos($output, '>');
+                $output = substr($output, 0, $pos + 1);
                 break;
         }
         if (!$infoTable) {
@@ -397,7 +396,7 @@ class plgContentQlwiki extends JPlugin
         }
 
         if ($readAll && false === $this->error) {
-            $output .= $this->getReadAll();
+            $output .= $this->addBtnReadAll();
         }
         return sprintf(self::TEMPLATE_CONTENT, $output);
     }
@@ -538,7 +537,7 @@ class plgContentQlwiki extends JPlugin
         return $stringReplaced;
     }
 
-    private function getReadAll(): string
+    private function addBtnReadAll(): string
     {
         $readMore = empty(trim($this->states['readmoreText']))
             ? self::READ_MORE
