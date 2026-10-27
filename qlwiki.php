@@ -6,12 +6,16 @@
  * @license        GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Factory;
+
 //no direct access
 defined('_JEXEC') or die ('Restricted Access');
 
 jimport('joomla.plugin.plugin');
 
-class plgContentQlwiki extends JPlugin
+class plgContentQlwiki extends CMSPlugin
 {
 
     const TEMPLATE_CONTENT = '<div class="qlwiki">%s</div>';
@@ -56,8 +60,6 @@ class plgContentQlwiki extends JPlugin
     public function __construct(& $subject, $config)
     {
         parent::__construct($subject, $config);
-        $this->loadLanguage();
-        //$input=JFactory::getApplication()->input;$this->viewType=$input->get('view');
     }
 
     /**
@@ -165,7 +167,7 @@ class plgContentQlwiki extends JPlugin
         // if error occured, write error messsage into output
         if (isset($result->error)) {
             $strResult = '<div class="message error alert">';
-            $strResult .= '<strong>' . JText::_('PLG_CONTENT_QLWIKI_URL') . '</strong>: ' . htmlentities($strUrl) . '<br />';
+            $strResult .= '<strong>' . Text::_('PLG_CONTENT_QLWIKI_URL') . '</strong>: ' . htmlentities($strUrl) . '<br />';
             foreach ($result->error as $k => $v) {
                 $strResult .= '<strong>' . ucwords($k) . '</strong>: ' . $v . '<br />';
             }
@@ -254,7 +256,7 @@ class plgContentQlwiki extends JPlugin
             $output = @file_get_contents($url, false);
         }
         if (!$output) {
-            JFactory::getApplication()->enqueueMessage($this->get('_name') . ': ' . sprintf(JText::_('PLG_CONTENT_QLWIKI_ERROROCCURRED'), $this->states['title']));
+            Factory::getApplication()->enqueueMessage($this->get('_name') . ': ' . sprintf(Text::_('PLG_CONTENT_QLWIKI_ERROROCCURRED'), $this->states['title']));
         }
         return $output;
     }
@@ -282,7 +284,7 @@ class plgContentQlwiki extends JPlugin
         $output = curl_exec($ch);
         curl_close($ch);
         if (false === $output) {
-            JFactory::getApplication()->enqueueMessage($this->get('_name') . ': ' . sprintf(JText::_('PLG_CONTENT_QLWIKI_ERROROCCURRED'), $this->states['title']));
+            Factory::getApplication()->enqueueMessage($this->get('_name') . ': ' . sprintf(Text::_('PLG_CONTENT_QLWIKI_ERROROCCURRED'), $this->states['title']));
         }
         return $output;
     }
@@ -343,7 +345,7 @@ class plgContentQlwiki extends JPlugin
         if (!isset($this->states['edit']) || !is_array($this->states['edit'])) {
             return false;
         }
-        $user = JFactory::getUser();
+        $user = Factory::getUser();
         $userGroup = $user->get('groups');
         if (!is_array($userGroup)) {
             return false;
@@ -406,7 +408,7 @@ class plgContentQlwiki extends JPlugin
      */
     private function checkUserLoggedIn(): bool
     {
-        $user = JFactory::getUser();
+        $user = Factory::getUser();
         if ($user->id > 0) {
             return true;
         } else {
@@ -419,27 +421,11 @@ class plgContentQlwiki extends JPlugin
      */
     private function checkUserAdministrator():bool
     {
-        $user = JFactory::getUser();
+        $user = Factory::getUser();
         if (in_array(8, $user->groups)) {
             return true;
         }
         return false;
-    }
-
-    /**
-     * method to get attributes
-     */
-    private function replaceEndTags(string $text): ?array
-    {
-        $matches = $this->getMatches($text, $this->str_call_end);
-        if (0 === count($matches)) {
-            return $text;
-        }
-        foreach ($matches as $match) {
-            $output = '';
-            $text = preg_replace("|$match[0]|", addcslashes($output, '\\$'), $text, 1);
-        }
-        return $text;
     }
 
     /**
@@ -550,7 +536,7 @@ class plgContentQlwiki extends JPlugin
         }
 
         // build html of button and return
-        return sprintf(self::TEMPLATE_BUTTON, $url, JText::_($readMore));
+        return sprintf(self::TEMPLATE_BUTTON, $url, Text::_($readMore));
     }
 
     private function buildUrl(string $url): string
